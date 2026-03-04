@@ -7,7 +7,7 @@
 
 import type { IntlShape } from 'react-intl';
 import { createIntlCache, createIntl } from 'react-intl';
-import { DEFAULT_LOCALE, loadMessages } from './loadMessages';
+import { DEFAULT_LOCALE, SOURCE_LOCALE, loadMessages } from './loadMessages';
 import { useEffect, useState } from 'react';
 import Utils from '../common/utils/Utils';
 
@@ -58,8 +58,18 @@ export const I18nUtils = {
       const langFromQuery = queryParams.get('l');
       if (langFromQuery) {
         window.localStorage.setItem('locale', langFromQuery);
+        return langFromQuery;
       }
-      return window.localStorage.getItem('locale') || DEFAULT_LOCALE;
+      const storedLocale = window.localStorage.getItem('locale');
+      if (storedLocale) {
+        return storedLocale;
+      }
+      // Use browser language when no preference is set (prioritize Chinese)
+      const browserLang = typeof navigator !== 'undefined' ? navigator.language : '';
+      if (browserLang.startsWith('zh')) {
+        return 'zh-CN';
+      }
+      return DEFAULT_LOCALE;
     };
     const locale = getLocale();
 
@@ -79,7 +89,7 @@ export const I18nUtils = {
 
   async loadMessages(locale: string) {
     const locales = [
-      locale === DEFAULT_LOCALE ? undefined : DEFAULT_LOCALE,
+      locale === SOURCE_LOCALE ? undefined : SOURCE_LOCALE,
       I18nUtils.getFallbackLocale(locale),
       locale,
     ].filter(Boolean);
