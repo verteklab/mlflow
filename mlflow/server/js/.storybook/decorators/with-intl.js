@@ -2,7 +2,7 @@ import { IntlProvider } from 'react-intl';
 
 const defaultIntlProps = {
   messages: {},
-  locale: 'en',
+  locale: 'zh-CN',
   onError: (e) => {
     // Omit missing translation errors in storybook
     if (e.code === 'MISSING_TRANSLATION') {

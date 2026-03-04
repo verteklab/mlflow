@@ -38,7 +38,7 @@ describe('I18nUtils', () => {
 
   describe('getCurrentLocale', () => {
     it('should return DEFAULT_LOCALE', () => {
-      expect(I18nUtils.getCurrentLocale()).toBe('en');
+      expect(I18nUtils.getCurrentLocale()).toBe('zh-CN');
     });
 
     it('should prefer locale in l query param over local storage', () => {
@@ -57,7 +57,7 @@ describe('I18nUtils', () => {
       // we prevent badLocale from getting to creatIntl
       localStorage.setItem('locale', badLocale);
       const locale = I18nUtils.getCurrentLocale();
-      expect(locale).toBe('en');
+      expect(locale).toBe('zh-CN');
       expect(() => createIntl({ locale, defaultLocale: 'en' })).not.toThrow();
     });
 
@@ -139,8 +139,8 @@ describe('I18nUtils', () => {
       await waitFor(() =>
         expect(result.current).toEqual(
           expect.objectContaining({
-            locale: 'en',
-            messages: { en: 'value', 'top-locale': 'en' },
+            locale: 'zh-CN',
+            messages: expect.objectContaining({ 'zh-CN': 'value', 'top-locale': 'zh-CN' }),
           }),
         ),
       );

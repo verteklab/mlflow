@@ -9,10 +9,15 @@
  * This file separates the webpack require.context from the rest of the i18n message loading
  * so that it can be mocked in tests.
  */
-export const DEFAULT_LOCALE = 'en';
+
+/** Default display locale when user has no preference */
+export const DEFAULT_LOCALE = 'zh-CN';
+
+/** Source locale - uses defaultMessage from source code, no translation file needed */
+export const SOURCE_LOCALE = 'en';
 
 export async function loadMessages(locale: any) {
-  if (locale === DEFAULT_LOCALE) {
+  if (locale === SOURCE_LOCALE) {
     return {};
   }
   if (locale === 'dev') {
@@ -28,7 +33,18 @@ export async function loadMessages(locale: any) {
 
   try {
     return (await import(`../lang/compiled/${locale}.json`)).default;
-  } catch (e) {
-    return {};
+  } catch {
+    // Fallback: load from source lang file and extract defaultMessage for runtime format
+    try {
+      const source = (await import(`../lang/${locale}.json`)).default;
+      return Object.fromEntries(
+        Object.entries(source).map(([id, msg]: [string, any]) => [
+          id,
+          typeof msg === 'object' && msg?.defaultMessage != null ? msg.defaultMessage : msg,
+        ]),
+      );
+    } catch {
+      return {};
+    }
   }
 }

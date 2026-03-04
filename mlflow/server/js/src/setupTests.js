@@ -35,7 +35,8 @@ if (!testPath?.includes('.enzyme.')) {
 // Mock loadMessages which uses require.context from webpack which is unavailable in node.
 jest.mock('./i18n/loadMessages', () => ({
   __esModule: true,
-  DEFAULT_LOCALE: 'en',
+  DEFAULT_LOCALE: 'zh-CN',
+  SOURCE_LOCALE: 'en',
   loadMessages: async (locale) => {
     if (locale.endsWith('unknown')) {
       return {};

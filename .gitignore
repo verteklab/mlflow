@@ -142,3 +142,4 @@ gunicorn.conf.py
 !.claude/rules/
 !.claude/settings.json
 !.claude/statusline.sh
+.history/
