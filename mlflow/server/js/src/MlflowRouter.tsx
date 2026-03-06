@@ -99,6 +99,13 @@ const MlflowRootLayout = ({
 /**
  * This is root element for MLflow routes, containing app header.
  */
+type MlflowPostMessagePayload = {
+  type?: string;
+  origin?: string;
+  root_url?: string;
+  root_search?: string;
+};
+
 const MlflowRootRoute = () => {
   useInitializeExperimentRunColors();
 
@@ -106,6 +113,7 @@ const MlflowRootRoute = () => {
   useDocumentTitle({ title: routeTitle });
 
   const [showSidebar, setShowSidebar] = useState(true);
+  const navigate = useNavigate({ bypassWorkspacePrefix: true });
   const { experimentId } = useParams();
   const enableWorkflowBasedNavigation = shouldEnableWorkflowBasedNavigation();
 
@@ -118,6 +126,33 @@ const MlflowRootRoute = () => {
     }
     setShowSidebar(enableWorkflowBasedNavigation || !isSingleExperimentPage);
   }, [isSingleExperimentPage, enableWorkflowBasedNavigation]);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const data = (event.data ?? {}) as MlflowPostMessagePayload;
+      if (!data || data.type !== 'MLFLOW_GO_BACK') {
+        return;
+      }
+      if (data.origin && event.origin !== data.origin) {
+        return;
+      }
+
+      if (window.history.length > 1) {
+        navigate(-1);
+        return;
+      }
+
+      if (data.root_url) {
+        const target = `${data.root_url}${data.root_search ?? ''}`;
+        navigate(target, { replace: true });
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [navigate]);
 
   return (
     <AssistantProvider>
